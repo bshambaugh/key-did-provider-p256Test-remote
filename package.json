@@ -1,5 +1,5 @@
 {
-  "name": "p256test",
+  "name": "key-did-provider-p256Test-remote",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
