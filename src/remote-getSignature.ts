@@ -42,8 +42,12 @@ setInterval(function(){
   (async function() {
   
   const toSign = 'hello';
-  getSignature(stream,toSign)
-    
+  // getSignature(stream,toSign)
+  const signature = await getSignature(stream,toSign);
+  console.log('ha');
+  console.log(signature);
+  console.log(signature.toString());
+
   })();
 },250);
 
@@ -54,7 +58,7 @@ server.listen(3000);
 async function getSignature(stream,string) {
     stream.write('2'+'1200'+string);
     let result = await waitForEvent(stream,'data');
-    console.log(result);
+   // console.log(result);
     return result;
   }
   
