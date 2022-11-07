@@ -1,5 +1,6 @@
 import { Signer } from 'did-jwt'
 import { createJWS } from 'did-jwt'
+import { createJWT } from 'did-jwt'
 import stringify from 'fast-json-stable-stringify'
 import type {
   AuthParams,
@@ -42,11 +43,17 @@ websocketServer.on('stream',function(stream,request) {
 setInterval(function(){
   (async function() {
   
+  // you need to show the function from remote.ts that gets the proper did
+  const did = 'did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv';
+  const signer = await remoteP256Signer(stream);
   const toSign = 'hello';
   // getSignature(stream,toSign)
   const signature = await getSignature(stream,toSign);
   console.log('ha');
   console.log(signature);
+
+  const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+  console.log(jwt)
   // what are cryptographic signers supposed to return??
   /*
   console.log(signature.toString());
@@ -62,6 +69,12 @@ setInterval(function(){
 })
 
 server.listen(3000);
+
+function remoteP256Signer(stream): Signer {
+  return async (payload: string | Uint8Array): Promise<string> => {
+    return await getSignature(stream,payload);
+   }
+}
   
   async function getSignature(stream,string) {
     stream.write('2'+'1200'+string);

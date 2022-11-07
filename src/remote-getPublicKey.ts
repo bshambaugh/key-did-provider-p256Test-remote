@@ -28,7 +28,7 @@ import * as OS from 'os'
 
 const server = http.createServer();
 const websocketServer  = WebSocket.createServer({server: server})
-
+server.listen(3000);
 
 DNS.lookup(OS.hostname(), function (err, add, fam) {
     console.log('addr: '+add);
@@ -52,7 +52,7 @@ setInterval(function(){
 
 })
 
-server.listen(3000);
+//server.listen(3000);
 
    // I think that I have to close some listeners here....because I get to the maxListner limit
    async function waitForEvent(emitter, event): Promise<string> {

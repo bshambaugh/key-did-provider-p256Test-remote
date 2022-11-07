@@ -27,6 +27,7 @@ import {fromString} from 'uint8arrays'
 
 import * as DNS from 'dns'
 import * as OS from 'os'
+import * as u8a from 'uint8arrays'
 
 const server = http.createServer();
 //const websocketServer = new WebSocketStream({ server: server })
@@ -84,11 +85,32 @@ setInterval(function(){
 
 server.listen(3000);
 
+/*
 async function getSignature(stream,string) {
     stream.write('2'+'1200'+string);
     let result = await waitForEvent(stream,'data');
     console.log(result);
     return result;
+  }
+*/
+
+export function resultToUint8Array(a: string): Uint8Array {
+  // splot a string, and get the second half
+  const myArray = a.split(",");
+  const hex = myArray[1];
+  const result = u8a.fromString(hex,'hex')
+  return result;
+}
+
+export function bytesToBase64url(b: Uint8Array): string {
+ return u8a.toString(b, 'base64url')
+}
+
+  async function getSignature(stream,string) {
+    stream.write('2'+'1200'+string);
+    let result = (await waitForEvent(stream,'data')).toString();
+    let resultExit = bytesToBase64url(resultToUint8Array(result))
+    return resultExit;
   }
   
   // I think that I have to close some listeners here....because I get to the maxListner limit
@@ -232,7 +254,7 @@ export class P256Provider implements DIDProvider {
     return encodeDIDfromHexString(multicodecName,compressedKeyInHexfromRaw(result[1]))
 }
 
-  async function getPublicKey(stream) : Promise<string> {
+export async function getPublicKey(stream) : Promise<string> {
     /// look at the RPC call to get the public key
     let rpcPayload = '1'+'1200';
     stream.write(rpcPayload);
