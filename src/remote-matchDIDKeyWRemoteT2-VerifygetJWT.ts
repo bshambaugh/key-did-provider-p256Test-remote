@@ -60,9 +60,10 @@ setInterval(function(){
           const didResolver = new Resolver(KeyDidResolver);
           // this verifyJWT does not work, perhaps once I know why this doesn't work then I will know why remote.ts does not work
          // verifyJWT(jwt,{resolver: didResolver,audience: did}).then(({payload,signer,jwt}) => { console.log(payload) })
+         verifyJWT(jwt,{resolver: didResolver,audience: newDID}).then(({payload,signer,jwt}) => { console.log(payload) })
 
           const resolve = await resolveDID();
-          console.log(resolve);
+          console.log(resolve);  /// sometimes the did:key changes in this console.log
 
           async function resolveDID() {
             const did = new DID({ resolver: KeyResolver.getResolver() })

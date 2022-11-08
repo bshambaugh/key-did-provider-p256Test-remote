@@ -25,6 +25,7 @@ import {fromString} from 'uint8arrays'
 import * as DNS from 'dns'
 import * as OS from 'os'
 import * as u8a from 'uint8arrays'
+import {hash} from '@stablelib/sha256'
 
 const server = http.createServer();
 //const websocketServer = new WebSocketStream({ server: server })
@@ -64,6 +65,7 @@ setInterval(function(){
 server.listen(3000);
   
   async function getSignature(stream,string) {
+    // I think that the string needs to be sha256ed before it gets signed....?
     stream.write('2'+'1200'+string);
     let result = (await waitForEvent(stream,'data')).toString();
     //console.log(result);
