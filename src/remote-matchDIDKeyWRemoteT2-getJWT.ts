@@ -53,7 +53,8 @@ setInterval(function(){
           console.log(did)
 
           const signer = await remoteP256Signer(stream);
-          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+          //const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: newDID, signer },{alg: 'ES256'})
           console.log(jwt)
     
   })();
@@ -65,8 +66,8 @@ setInterval(function(){
 
 // if this does not work, try converting the ascii to a byte array in the getSignature function
 function remoteP256Signer(stream): Signer {
- // return async (payload: string | Uint8Array): Promise<string> => {
-  return async (payload: Uint8Array): Promise<string> => {
+  return async (payload: string | Uint8Array): Promise<string> => {
+//  return async (payload: Uint8Array): Promise<string> => {
     return await getSignature(stream,payload);
    }
 }
@@ -82,7 +83,7 @@ function remoteP256Signer(stream): Signer {
   }
 
   */
-
+/*
   async function getSignature(stream,data: Uint8Array) {
     // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
     // I think that the string needs to be sha256ed before it gets signed....?
@@ -98,6 +99,32 @@ function remoteP256Signer(stream): Signer {
     //console.log(resultExit);
     return resultExit;
   }
+  */
+
+  async function getSignature(stream,data: string | Uint8Array) {
+    // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
+    // I think that the string needs to be sha256ed before it gets signed....?
+    if(data.constructor === Uint8Array) {
+      const signature = await signatureLogic(stream,data);
+      return signature;
+    } else if (data.constructor === String) {
+      const u8toSign = u8a.fromString(data,'ascii')
+      const signature = await signatureLogic(stream,u8toSign);
+      return signature;
+    } 
+ }
+
+ async function signatureLogic(stream,data: Uint8Array) {
+    const input = hash(data);
+    const inputHex = u8a.toString(input,'hex');
+    console.log(inputHex);
+    stream.write('2'+'1200'+inputHex);
+    let result = (await waitForEvent(stream,'data')).toString();
+    console.log(result);
+    console.log(resultToUint8Array(result));
+    let resultExit = bytesToBase64url(resultToUint8Array(result))
+    return resultExit;
+ }
 
   export function resultToUint8Array(a: string): Uint8Array {
     // splot a string, and get the second half

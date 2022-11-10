@@ -76,3 +76,24 @@ console.log(yOctet);
 
 //let hexSig = keypairTemp.sign(buffferMsg)
 //console.log(signature.r.toString())
+
+const toSign = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a';
+const u8toSign = u8a.fromString(toSign,'ascii')
+const hexToSign = u8a.toString(u8toSign,'hex')
+const input = hash(u8toSign);
+const hexInput = u8a.toString(input,'hex')
+console.log(toSign);
+console.log(hexToSign);
+console.log(hexInput);
+
+console.log(typeof u8toSign);
+
+//if (typeof == object )  === do the below .... else.... convert it to the to the asciiObject
+if(u8toSign.constructor === Uint8Array) {
+  console.log('you have a unit8array')
+}
+
+if(toSign.constructor === String) {
+   console.log('you have a string')
+}
+
