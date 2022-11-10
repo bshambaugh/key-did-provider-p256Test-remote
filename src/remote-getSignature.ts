@@ -43,7 +43,7 @@ websocketServer.on('stream',function(stream,request) {
 setInterval(function(){
   (async function() {
   
-  const toSign = 'hello';
+  const toSign = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a';
   // getSignature(stream,toSign)
   const signature = await getSignature(stream,toSign);
   console.log('ha');
@@ -65,6 +65,7 @@ setInterval(function(){
 server.listen(3000);
   
   async function getSignature(stream,string) {
+    // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
     // I think that the string needs to be sha256ed before it gets signed....?
     stream.write('2'+'1200'+string);
     let result = (await waitForEvent(stream,'data')).toString();
