@@ -43,7 +43,8 @@ websocketServer.on('stream',function(stream,request) {
 setInterval(function(){
   (async function() {
   
-  const toSign = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a';
+ // const toSign = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a';
+  const toSign = 'eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjgxMDU5NTMsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZXpVRm40em1Ob05lWnZCRWRWeUN2Nk1WTDY5WDhOUkQ4WWF2VENKV0d1WE03In0';
   // getSignature(stream,toSign)
   const signature = await getSignature(stream,toSign);
   // const signature = await getSignature(stream,u8a.fromString(toSign));
@@ -86,10 +87,12 @@ async function getSignature(stream,data: Uint8Array) {
     // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
     // I think that the string needs to be sha256ed before it gets signed....?
     if(data.constructor === Uint8Array) {
+      console.log(data);
       const signature = await signatureLogic(stream,data);
       return signature;
     } else if (data.constructor === String) {
       const u8toSign = u8a.fromString(data,'ascii')
+      console.log(u8toSign);
       const signature = await signatureLogic(stream,u8toSign);
       return signature;
     }
@@ -97,6 +100,7 @@ async function getSignature(stream,data: Uint8Array) {
 
  async function signatureLogic(stream,data: Uint8Array) {
     const input = hash(data);
+    console.log(input);
     const inputHex = u8a.toString(input,'hex');
     console.log(inputHex);
     stream.write('2'+'1200'+inputHex);
