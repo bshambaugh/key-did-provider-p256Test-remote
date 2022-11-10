@@ -27,6 +27,7 @@ import {fromString} from 'uint8arrays'
 import * as DNS from 'dns'
 import * as OS from 'os'
 import * as u8a from 'uint8arrays'
+import {hash} from '@stablelib/sha256'
 
 const server = http.createServer();
 const websocketServer  = WebSocket.createServer({server: server})
@@ -62,16 +63,37 @@ setInterval(function(){
 
 //server.listen(3000);
 
+// if this does not work, try converting the ascii to a byte array in the getSignature function
 function remoteP256Signer(stream): Signer {
-  return async (payload: string | Uint8Array): Promise<string> => {
+ // return async (payload: string | Uint8Array): Promise<string> => {
+  return async (payload: Uint8Array): Promise<string> => {
     return await getSignature(stream,payload);
    }
 }
   
+/*
   async function getSignature(stream,string) {
     stream.write('2'+'1200'+string);
     let result = (await waitForEvent(stream,'data')).toString();
     //console.log(result);
+    let resultExit = bytesToBase64url(resultToUint8Array(result))
+    //console.log(resultExit);
+    return resultExit;
+  }
+
+  */
+
+  async function getSignature(stream,data: Uint8Array) {
+    // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
+    // I think that the string needs to be sha256ed before it gets signed....?
+    // data may be a string, if so ascii to Uint8Array .... have a function that checks for Unit8Array or ascii string
+    const input = hash(data);
+    const inputHex = u8a.toString(input,'hex');
+    console.log(inputHex);
+    stream.write('2'+'1200'+inputHex);
+    let result = (await waitForEvent(stream,'data')).toString();
+    console.log(result);
+    console.log(resultToUint8Array(result));
     let resultExit = bytesToBase64url(resultToUint8Array(result))
     //console.log(resultExit);
     return resultExit;

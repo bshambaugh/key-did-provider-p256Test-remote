@@ -45,7 +45,7 @@ setInterval(function(){
   
   const toSign = '040f1dbf0a2ca86875447a7c010b0fc6d39d76859c458fbe8f2bf775a40ad74a';
   // getSignature(stream,toSign)
-  const signature = await getSignature(stream,toSign);
+  const signature = await getSignature(stream,u8a.fromString(toSign));
   console.log('ha');
   console.log(signature);
   // what are cryptographic signers supposed to return??
@@ -64,12 +64,16 @@ setInterval(function(){
 
 server.listen(3000);
   
-  async function getSignature(stream,string) {
+  async function getSignature(stream,data: Uint8Array) {
     // getSignature should take a sha256hash as a hex string....or convert a uint8array to a hexstring
     // I think that the string needs to be sha256ed before it gets signed....?
-    stream.write('2'+'1200'+string);
+    const input = hash(data);
+    const inputHex = u8a.toString(input,'hex');
+    console.log(inputHex);
+    stream.write('2'+'1200'+inputHex);
     let result = (await waitForEvent(stream,'data')).toString();
-    //console.log(result);
+    console.log(result);
+    console.log(resultToUint8Array(result));
     let resultExit = bytesToBase64url(resultToUint8Array(result))
     //console.log(resultExit);
     return resultExit;
