@@ -41,30 +41,18 @@ websocketServer.on('stream',function(stream,request) {
 
  //   stream.setEncoding('utf8');
 
-setInterval(function(){
+ setInterval(function(){
   (async function() {
     
     
           let did = 'did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv';
           const newDID = await matchDIDKeyWithRemote(did,stream);
-          /*
-          did = newDID;
-     
-          console.log('public Key is:');
-          console.log(newDID);  /// this is great, but I just need to stuff after the comma
-          console.log(did)
-          */
-          // if await is non blocking, just let newDID be DID
-          /*
-          const newDID = 'did:key:zDnaezUFn4zmNoNeZvBEdVyCv6MVL69X8NRD8YavTCJWGuXM7'
-          */
           const signer = await remoteP256Signer(stream);
-          //const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
           const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: newDID, signer },{alg: 'ES256'})
           console.log(jwt)
     
   })();
-},250);
+},1000);
 
 })
 
@@ -141,7 +129,6 @@ function remoteP256Signer(stream): Signer {
     console.log(data);
     console.log('fed and uint8array');
     const signature = await signatureLogic(stream,data);
-    console.log('the signature is: '+signature)
     return signature;
   } else if (data.constructor === String) {
     console.log('here is the signature')
@@ -150,7 +137,6 @@ function remoteP256Signer(stream): Signer {
     console.log(u8toSign);
     console.log('fed a string');
     const signature = await signatureLogic(stream,u8toSign);
-    console.log('the signature is: '+signature)
     return signature;
   }
 }
