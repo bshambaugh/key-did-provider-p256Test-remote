@@ -1,6 +1,7 @@
 import { Signer } from 'did-jwt'
 import { createJWS } from 'did-jwt'
 import { createJWT } from 'did-jwt'
+import { verifyJWT } from 'did-jwt'
 import stringify from 'fast-json-stable-stringify'
 import type {
   AuthParams,
@@ -28,10 +29,11 @@ import * as DNS from 'dns'
 import * as OS from 'os'
 import * as u8a from 'uint8arrays'
 import {hash} from '@stablelib/sha256'
+import { Resolver } from 'did-resolver'
 
 const server = http.createServer();
 const websocketServer  = WebSocket.createServer({server: server})
-//server.listen(3000);
+server.listen(3000);
 
 DNS.lookup(OS.hostname(), function (err, add, fam) {
     console.log('addr: '+add);
@@ -39,36 +41,34 @@ DNS.lookup(OS.hostname(), function (err, add, fam) {
 
 websocketServer.on('stream',function(stream,request) {
 
- //   stream.setEncoding('utf8');
+    stream.setEncoding('utf8');
 
 setInterval(function(){
   (async function() {
     
-    
           let did = 'did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv';
           const newDID = await matchDIDKeyWithRemote(did,stream);
-          /*
           did = newDID;
      
           console.log('public Key is:');
           console.log(newDID);  /// this is great, but I just need to stuff after the comma
           console.log(did)
-          */
-          // if await is non blocking, just let newDID be DID
-          /*
-          const newDID = 'did:key:zDnaezUFn4zmNoNeZvBEdVyCv6MVL69X8NRD8YavTCJWGuXM7'
-          */
+
           const signer = await remoteP256Signer(stream);
           //const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
           const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: newDID, signer },{alg: 'ES256'})
           console.log(jwt)
+          const KeyDidResolver = KeyResolver.getResolver();
+          const didResolver = new Resolver(KeyDidResolver);
+          /// this verifyJWT explodes .... 
+          verifyJWT(jwt,{resolver: didResolver,audience: newDID}).then(({payload,signer,jwt}) => { console.log(payload) })
     
   })();
 },250);
 
 })
 
-server.listen(3000);
+//server.listen(3000);
 
 // if this does not work, try converting the ascii to a byte array in the getSignature function
 function remoteP256Signer(stream): Signer {
@@ -143,7 +143,6 @@ function remoteP256Signer(stream): Signer {
     const signature = await signatureLogic(stream,data);
     return signature;
   } else if (data.constructor === String) {
-    console.log('here is the signature')
     console.log(data);
     const u8toSign = u8a.fromString(data,'ascii')
     console.log(u8toSign);
@@ -160,7 +159,6 @@ async function signatureLogic(stream,data: Uint8Array) {
   console.log(inputHex);
   stream.write('2'+'1200'+inputHex);
   let result = (await waitForEvent(stream,'data')).toString();
-  console.log('signatureresult');
   console.log(result);
   console.log(resultToUint8Array(result));
   let resultExit = bytesToBase64url(resultToUint8Array(result))
@@ -197,20 +195,12 @@ async function signatureLogic(stream,data: Uint8Array) {
    // console.log(publicKey);
     const publicRawKey = octetToRaw(publicKey)
    // console.log(publicRawKey);
-    let result = (await matchPublicKeyWithRemote(publicRawKey,stream)).toString();
-    /*
-    console.log('start of result')
-    console.log(result);
-    console.log('end of result')
-    */
-   // return didkeyURL;
-    
+    let result = await matchPublicKeyWithRemote(publicRawKey,stream)
     if(result.length > 1) {
       return rpcToDID(result);
      } else {
        return didkeyURL;
      }
-  
   }
   
   async function matchPublicKeyWithRemote(publicKey: string,stream: any) : Promise<string> {

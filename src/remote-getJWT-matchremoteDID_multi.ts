@@ -50,12 +50,12 @@ setInterval(function(){
   const newDID = await matchDIDKeyWithRemote(did,stream);
   did = newDID;
   console.log(did);
-  /*
+  
   did = 'did:key:zDnaeqYWNxcFqy5DcJm91BMTeWv5hjs1VL5medk9n8dDUC67T'
   const newDID2 = await matchDIDKeyWithRemote(did,stream);
   did = newDID2;
   console.log(did);
-  */
+  
   /*
   const signer = await remoteP256Signer(stream);
   const toSign = 'hello';

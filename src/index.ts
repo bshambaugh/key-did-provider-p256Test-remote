@@ -2,7 +2,15 @@ import { P256Provider } from 'key-did-provider-p256'
 import KeyResolver from 'key-did-resolver'
 import { DID } from 'dids'
 import {fromString} from 'uint8arrays'
+import { ES256Signer } from 'did-jwt'
+import * as u8a from 'uint8arrays'
 
+import pkg from 'elliptic';
+const { ec: EC } = pkg;
+import { compressedKeyInHexfromRaw, encodeDIDfromHexString } from 'did-key-creator'
+import { createJWT } from 'did-jwt'
+
+var p256 = new EC('p256');
 
 /*
 const seed = new Uint8Array(32) //  32 bytes with high entropy
@@ -37,4 +45,37 @@ console.log(jwe);
 // decrypt JWE
 const decrypted = await did.decryptDagJWE(jwe)
 console.log(decrypted)i
+*/
+
+const u8aprivateKey = u8a.fromString(privateKey,'hex')
+console.log(u8a.toString(u8aprivateKey,'base10'))
+const signer = ES256Signer(u8aprivateKey);
+
+const key2 = p256.keyFromPrivate(privateKey,'hex')
+
+console.log(key2);
+console.log('last')
+console.log(String(key2.getPrivate()))
+
+//key2.getPublic
+
+var pubPoint = key2.getPublic();
+var x = pubPoint.getX();
+var y = pubPoint.getY();
+
+var pub = x.toString('hex')+y.toString('hex');
+console.log(pub);
+
+const multicodecName = 'p256-pub';
+const compressedKey = compressedKeyInHexfromRaw(pub);
+const newDID = encodeDIDfromHexString(multicodecName,compressedKey); 
+console.log(newDID);
+
+const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: newDID, signer },{alg: 'ES256'})
+console.log(jwt)
+
+// yes this jwt checks out...
+
+/*
+eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE2NjgxMjAyMzAsInJlcXVlc3RlZCI6WyJuYW1lIiwicGhvbmUiXSwiaXNzIjoiZGlkOmtleTp6RG5hZXlQb2ZSSzhjYnR1VzNINlFiRE45dWVrSmd6V0ROOEZFYmNad1c0OXFyV1ljIn0.EjfH_8NvYHMJMQQUnNEF8IAbLs87P12XYuP9XKuRj1LQBLHnWNazGYY92C76xwbJsSSlAJARJ7Md5bP8lEhdtA
 */
