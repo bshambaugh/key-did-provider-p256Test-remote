@@ -115,9 +115,13 @@ async function getSignature(stream,data: Uint8Array) {
 export function resultToUint8Array(a: string): Uint8Array {
    // splot a string, and get the second half
    const myArray = a.split(",");
-   const hex = myArray[1];
-   const result = u8a.fromString(hex,'hex')
-   return result;
+   if(myArray[0] == 'signature') {
+     const hex = myArray[1];
+     const result = u8a.fromString(hex,'hex')
+     return result;
+   } else {
+     return undefined;
+   }
 }
 
 export function bytesToBase64url(b: Uint8Array): string {

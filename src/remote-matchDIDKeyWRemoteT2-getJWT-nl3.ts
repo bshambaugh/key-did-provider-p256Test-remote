@@ -37,6 +37,7 @@ DNS.lookup(OS.hostname(), function (err, add, fam) {
     console.log('addr: '+add);
 })
 
+/*
 websocketServer.on('stream',function(stream,request) {
 
  //   stream.setEncoding('utf8');
@@ -45,28 +46,30 @@ setInterval(function(){
   (async function() {
     
     
-          let did = 'did:key:zDnaerx9CtbPJ1q36T5Ln5wYt3MQYeGRG5ehnPAmxcf5mDZpv';
-          const newDID = await matchDIDKeyWithRemote(did,stream);
-          /*
-          did = newDID;
-     
-          console.log('public Key is:');
-          console.log(newDID);  /// this is great, but I just need to stuff after the comma
-          console.log(did)
-          */
-          // if await is non blocking, just let newDID be DID
-          /*
-          const newDID = 'did:key:zDnaezUFn4zmNoNeZvBEdVyCv6MVL69X8NRD8YavTCJWGuXM7'
-          */
+          let did = 'did:key:zDnaezUFn4zmNoNeZvBEdVyCv6MVL69X8NRD8YavTCJWGuXM7';
           const signer = await remoteP256Signer(stream);
-          //const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
-          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: newDID, signer },{alg: 'ES256'})
+          const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
           console.log(jwt)
     
   })();
+
 },250);
 
 })
+*/
+
+let x = 0;
+websocketServer.on('stream',function(stream,request) {
+  (async function() {
+     while (true) { 
+      let did = 'did:key:zDnaezUFn4zmNoNeZvBEdVyCv6MVL69X8NRD8YavTCJWGuXM7';
+      const signer = await remoteP256Signer(stream);
+      const jwt = await createJWT({ requested: ['name', 'phone'] }, { issuer: did, signer },{alg: 'ES256'})
+      console.log(jwt)
+      
+      } 
+   })(); 
+});
 
 server.listen(3000);
 
