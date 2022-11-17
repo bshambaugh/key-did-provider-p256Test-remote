@@ -19,6 +19,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ceramicnetwork/http-client": "^2.10.0",
+    "@ceramicnetwork/stream-tile": "^2.9.0",
     "dids": "3.4.0",
     "key-did-provider-p256": "1.5.0",
     "key-did-resolver": "^2.3.0",
